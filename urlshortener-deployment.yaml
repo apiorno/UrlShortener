@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose.exe convert
+    kompose.service.type: LoadBalancer
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: urlshortener
+  name: urlshortener
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: urlshortener
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose.exe convert
+        kompose.service.type: LoadBalancer
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/urlshortenernet: "true"
+        io.kompose.service: urlshortener
+    spec:
+      containers:
+      - env:
+        - name: GET_HOSTS_FROM
+          value: dns
+        image: chinwewenchas/urlshortener:v1
+        imagePullPolicy: ""
+        name: urlshortener
+        ports:
+        - containerPort: 8080
+        resources: {}
+      hostname: urlshortener
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
