@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+
+  urlshortener:
+    container_name: urlshortener
+    image: chinwewenchas/urlshortener:v1
+    hostname: urlshortener
+    restart: unless-stopped
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    environment: 
+      GET_HOSTS_FROM: dns
+    networks: 
+      - urlshortenernet
+    ports:
+    - 8080:8080
+    labels:
+      kompose.service.type: LoadBalancer
+
+networks: 
+  urlshortenernet:
