@@ -127,3 +127,29 @@ func DisassociateURL(ID string) error {
 	return nil
 
 }
+
+// AssociateURL associates an URL to a unique id for short URL
+func UpdateURL(ID string, url string) error {
+
+	iter := DBClient.Collection("UrlAssociationsData").Doc("UrlAssociationsDoc").Collection("urlAssociations").Where("uuid", "==", ID).Limit(1).Documents(ctx)
+	defer iter.Stop() // add this line to ensure resources cleaned up
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return ErrURLNotFound
+		}
+
+		_, err = doc.Ref.Set(ctx, map[string]interface{}{
+			"url": url,
+		})
+
+		if err != nil {
+			return ErrURLNotFound
+		}
+	}
+	return nil
+
+}
