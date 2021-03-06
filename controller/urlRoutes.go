@@ -31,6 +31,9 @@ func Startup(l *log.Logger) *mux.Router {
 	deleteRouter := mux.Methods(http.MethodDelete).Subrouter()
 	deleteRouter.HandleFunc("/{id:[0-9a-v]{20}}", controller.DisassociateURL())
 
+	putRouter := mux.Methods(http.MethodPut).Subrouter()
+	putRouter.HandleFunc("/{id:[0-9a-v]{20}}", controller.UpdateURL())
+
 	return mux
 }
 
@@ -114,6 +117,37 @@ func (c *URLAssociationsController) DisassociateURL() http.HandlerFunc {
 		id := mux.Vars(r)["id"]
 
 		err := data.DisassociateURL(id)
+
+		if err != nil {
+			http.Error(rw, err.Error(), http.StatusBadRequest)
+			return
+		}
+	}
+}
+
+// UpdateURL updates the url associated to the requested uuid
+func (c *URLAssociationsController) UpdateURL() http.HandlerFunc {
+	return func(rw http.ResponseWriter, r *http.Request) {
+		c.LogLine("Handle UPDATE/{id} ")
+
+		id := mux.Vars(r)["id"]
+
+		urlAssociation := &model.URLAssociation{}
+		err := urlAssociation.FromJSON(r.Body)
+
+		if err != nil {
+			c.LogLine(err.Error())
+			http.Error(rw, "Unable to parse json", http.StatusBadRequest)
+			return
+		}
+
+		_, err = url.ParseRequestURI(urlAssociation.URL)
+		if err != nil {
+			http.Error(rw, "Invalid url format", http.StatusBadRequest)
+			return
+		}
+
+		err = data.UpdateURL(id, urlAssociation.URL)
 
 		if err != nil {
 			http.Error(rw, err.Error(), http.StatusBadRequest)
