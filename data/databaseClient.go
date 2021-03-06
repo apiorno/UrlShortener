@@ -128,7 +128,7 @@ func DisassociateURL(ID string) error {
 
 }
 
-// AssociateURL associates an URL to a unique id for short URL
+// UpdateURL updates the url associated to the requested uuid
 func UpdateURL(ID string, url string) error {
 
 	iter := DBClient.Collection("UrlAssociationsData").Doc("UrlAssociationsDoc").Collection("urlAssociations").Where("uuid", "==", ID).Limit(1).Documents(ctx)
@@ -144,7 +144,7 @@ func UpdateURL(ID string, url string) error {
 
 		_, err = doc.Ref.Set(ctx, map[string]interface{}{
 			"url": url,
-		})
+		}, firestore.MergeAll)
 
 		if err != nil {
 			return ErrURLNotFound
